@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  api_dueno:
+    build: ./ApiDueno
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/apiDuenos?createDatabaseIfnotExist=true&serverTimezone=UTC
+      DB_USER_NAME: postgres
+      DB_PASSWORD: admin
+      DB_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+  dueno_mascotas:
+    build: ./DuenoMascotas
+    ports:
+      - "8090:8090"
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/apiDuenos?createDatabaseIfnotExist=true&serverTimezone=UTC
+      DB_USER_NAME: postgres
+      DB_PASSWORD: admin
+      DB_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+  consultas_mascotas:
+    build: ./ConsultasMascotas
+    ports:
+      - "9000:9000"
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/apiDuenos?createDatabaseIfnotExist=true&serverTimezone=UTC
+      DB_USER_NAME: postgres
+      DB_PASSWORD: admin
+      DB_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+  login_app:
+    build: ./loginApp
+    ports:
+      - "9010:9010"
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/apiDuenos?createDatabaseIfnotExist=true&serverTimezone=UTC
+      DB_USER_NAME: postgres
+      DB_PASSWORD: admin
+      DB_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: apiDuenos
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
